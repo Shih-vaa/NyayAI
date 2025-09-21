@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NyayAI Chat</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>NyayAI Chat</h1>
+
+    <input type="text" id="user_input" placeholder="Ask your legal query" size="50">
+    <button id="send_btn">Send</button>
+
+    <div id="chat_results" style="margin-top:20px;">
+    </div>
+
+    <script>
+        $('#send_btn').click(function() {
+            const query = $('#user_input').val();
+            $('#chat_results').append(`<p><b>You:</b> ${query}</p>`);
+
+            $.post("{% url 'query_rag' %}", {user_input: query, csrfmiddlewaretoken: '{{ csrf_token }}'})
+            .done(function(data) {
+                data.results.forEach(function(res){
+                    $('#chat_results').append(`<p><b>NyayAI:</b> ${res}</p>`);
+                });
+            })
+            .fail(function(err) {
+                $('#chat_results').append(`<p style="color:red;"><b>Error:</b> ${err.responseJSON.error}</p>`);
+            });
+
+            $('#user_input').val('');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="d-flex mx-auto" style="max-width: 900px; height: 80vh; gap:1rem;">
+    <!-- Sidebar: Conversation History -->
+    <div class="card shadow" style="width: 250px; overflow-y:auto;">
+        <div class="card-header bg-secondary text-white text-center fw-bold">
+            History
+        </div>
+        <ul class="list-group list-group-flush" id="historyList">
+            <!-- Filled dynamically -->
+        </ul>
+    </div>
+
+    <!-- Main Chat -->
+    <div class="card shadow flex-grow-1 d-flex flex-column">
+        <!-- Header -->
+        <div class="card-header bg-primary text-white text-center fw-bold d-flex justify-content-between align-items-center">
+            NyayAI Chat
+            <button class="btn btn-sm btn-light" id="darkModeToggle">🌙</button>
+        </div>
+
+        <!-- Chat body -->
+        <div class="card-body flex-grow-1 overflow-auto" id="chat-body">
+            <!-- Messages go here -->
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer d-flex">
+            <input type="text" id="user-input" class="form-control" placeholder="Ask your legal query...">
+            <button class="btn btn-primary ms-2" id="sendBtn">Send</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Chat Bubbles */
+.ai-message {
+    background-color: #e9ecef;
+    color: black;
+    align-self: flex-start;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.ai-message strong {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.ai-message em {
+    font-style: italic;
+    color: #6c757d;
+}
+
+.ai-message br {
+    margin-bottom: 0.5rem;
+    display: block;
+    content: "";
+}
+
+/* Dark mode support */
+body.dark-mode .ai-message {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+}
+
+body.dark-mode .ai-message strong {
+    color: #4da6ff;
+}
+.chat-message {
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    background-color: #0d6efd;
+    color: white;
+    align-self: flex-end;
+}
+
+.ai-message {
+    background-color: #e9ecef;
+    color: black;
+    align-self: flex-start;
+}
+
+/* Dark mode overrides */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark-mode .user-message {
+    background-color: #0d6efd;
+}
+
+body.dark-mode .ai-message {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+}
+
+body.dark-mode .list-group-item {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+}
+
+.loading-dots span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+    background-color: #000;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite ease-in-out;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+body.dark-mode .loading-dots span { background-color: #e0e0e0; }
+
+#historyList { max-height: 70vh; overflow-y: auto; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    let conversationHistory = [];
+
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(cookie => {
+                const trimmed = cookie.trim();
+                if (trimmed.startsWith('csrftoken=')) {
+                    cookieValue = decodeURIComponent(trimmed.substring(10));
+                }
+            });
+        }
+        return cookieValue;
+    }
+
+    function createMessageDiv(msg) {
+        const div = document.createElement('div');
+        div.className = 'chat-message ' + (msg.sender === 'user' ? 'user-message' : 'ai-message');
+        div.innerText = msg.text;
+        return div;
+    }
+
+    function updateHistorySidebar() {
+        const historyList = document.getElementById('historyList');
+        historyList.innerHTML = '';
+        conversationHistory.forEach((convo, idx) => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.innerText = convo.title;
+            li.onclick = () => loadConversation(idx);
+            historyList.appendChild(li);
+        });
+        historyList.scrollTop = historyList.scrollHeight;
+    }
+
+    function loadConversation(index) {
+        const chatBody = document.getElementById('chat-body');
+        chatBody.innerHTML = '';
+        const convo = conversationHistory[index];
+        convo.messages.forEach(m => chatBody.appendChild(createMessageDiv(m)));
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const chatBody = document.getElementById('chat-body');
+
+        // User message
+        const userMsg = { sender: 'user', text };
+        chatBody.appendChild(createMessageDiv(userMsg));
+
+        // AI placeholder
+        const aiMsg = { sender: 'ai', text: '' };
+        const aiDiv = createMessageDiv(aiMsg);
+        const dots = document.createElement('span');
+        dots.className = 'loading-dots';
+        dots.innerHTML = '<span></span><span></span><span></span>';
+        aiDiv.appendChild(dots);
+        chatBody.appendChild(aiDiv);
+
+        chatBody.scrollTop = chatBody.scrollHeight;
+        input.value = '';
+
+        // Save plain text to history
+        conversationHistory.push({
+            title: text,
+            messages: [
+                { sender: 'user', text: text },
+                { sender: 'ai', text: '' }
+            ]
+        });
+        updateHistorySidebar();
+
+
+
+
+fetch("/api/query/", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": getCSRFToken()
+    },
+    body: "user_input=" + encodeURIComponent(text)
+})
+        .then(res => res.json())
+     .then(data => {
+    console.log("API Response:", data); // Debug logging
+    
+    let aiText;
+    if (data.response) {
+        // Successful response from your rag_service
+        aiText = formatResponse(data.response);
+    } else if (data.error) {
+        // Error response from your backend
+        aiText = "⚠️ Error: " + data.error;
+    } else {
+        // Unexpected response format
+        aiText = "⚠️ Unexpected response format from server";
+        console.error("Unexpected response:", data);
+    }
+    
+    aiDiv.innerHTML = aiText;
+
+    // Update history
+    const lastConvo = conversationHistory[conversationHistory.length - 1];
+    lastConvo.messages[1].text = aiText;
+
+    chatBody.scrollTop = chatBody.scrollHeight;
+})
+        .catch(err => {
+            aiDiv.innerHTML = "⚠️ Error: " + err;
+            const lastConvo = conversationHistory[conversationHistory.length - 1];
+            lastConvo.messages[1].text = aiDiv.innerText;
+            chatBody.scrollTop = chatBody.scrollHeight;
+            console.error(err);
+        });
+    }
+
+    // Event listeners
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('user-input').addEventListener('keydown', e => {
+        if(e.key === 'Enter') sendMessage();
+    });
+    document.getElementById('darkModeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+    });
+});
+
+
+
+function formatResponse(text) {
+    // Replace numbered lists with HTML
+    text = text.replace(/(\d+\.)\s/g, '<br><strong>$1</strong> ');
+    
+    // Replace **bold** with <strong>
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Replace *italic* with <em>
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Add line breaks for paragraphs
+    text = text.replace(/\n\n/g, '<br><br>');
+    
+    // Add line breaks for single newlines
+    text = text.replace(/\n/g, '<br>');
+    
+    // Format important notes and additional tips
+    text = text.replace(/(Additional tips:|Important notes:)/g, '<br><br><strong>$1</strong><br>');
+    
+    return text;
+}
+
+</script>
+
+{% endblock %}
