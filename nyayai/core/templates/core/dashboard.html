@@ -1,0 +1,393 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Stats Overview -->
+    <div class="col-12">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="card card-hover bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0" id="totalChats">0</h4>
+                                <p class="mb-0">Total Chats</p>
+                            </div>
+                            <i class="fas fa-comments fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-hover bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0" id="documentsProcessed">0</h4>
+                                <p class="mb-0">Documents</p>
+                            </div>
+                            <i class="fas fa-file-alt fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-hover bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0" id="activeCases">0</h4>
+                                <p class="mb-0">Active Cases</p>
+                            </div>
+                            <i class="fas fa-folder fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-hover bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0" id="queriesResolved">0</h4>
+                                <p class="mb-0">Queries Resolved</p>
+                            </div>
+                            <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="col-lg-8">
+        <!-- Chat Interface -->
+        <div class="card card-hover mb-4">
+            <div class="card-header legal-gradient text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-robot me-2"></i>Legal Assistant</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-light" id="clearChatBtn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="dashboard-chat-body" style="height: 300px; overflow-y: auto;" class="mb-3">
+                    <!-- Chat messages will appear here -->
+                </div>
+                <div class="input-group">
+                    <input type="text" id="dashboard-user-input" class="form-control" 
+                           placeholder="Ask your legal question...">
+                    <button class="btn btn-primary" id="dashboard-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Upload -->
+        <div class="card card-hover">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Document Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="dropzone border rounded p-4 text-center mb-3" id="documentDropzone">
+                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">Drag & drop your legal documents here or click to browse</p>
+                    <input type="file" id="file-input" class="d-none" accept=".pdf,.doc,.docx,.txt">
+                    <button class="btn btn-outline-success" onclick="document.getElementById('file-input').click()">
+                        <i class="fas fa-folder-open me-2"></i>Browse Files
+                    </button>
+                </div>
+                <div id="uploadProgress" class="d-none">
+                    <div class="progress mb-2">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <small class="text-muted">Processing document...</small>
+                </div>
+                <div id="documentSummaries"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Prediction Panel -->
+        <div class="card card-hover mb-4">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Case Predictions</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="timelineChart" height="200"></canvas>
+                <div class="mt-3">
+                    <h6>Suggested Actions</h6>
+                    <div id="suggestionsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card card-hover">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush" id="recentActivity">
+                    <!-- Activity items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dropzone {
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dropzone:hover, .dropzone.dragover {
+    border-color: var(--success-color);
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+.activity-item {
+    border: none;
+    padding: 0.75rem 0;
+}
+
+.activity-item:not(:last-child) {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+[data-bs-theme="dark"] .activity-item:not(:last-child) {
+    border-bottom-color: #374151;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Enhanced dashboard functionality
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDashboard();
+    loadPredictions();
+    loadRecentActivity();
+    setupDocumentUpload();
+});
+
+function initializeDashboard() {
+    // Update stats
+    updateDashboardStats();
+    
+    // Setup chat functionality
+    document.getElementById('dashboard-send-btn').addEventListener('click', sendDashboardMessage);
+    document.getElementById('dashboard-user-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') sendDashboardMessage();
+    });
+}
+
+function updateDashboardStats() {
+    // Simulate data - replace with actual API calls
+    document.getElementById('totalChats').textContent = '24';
+    document.getElementById('documentsProcessed').textContent = '8';
+    document.getElementById('activeCases').textContent = '3';
+    document.getElementById('queriesResolved').textContent = '19';
+}
+
+async function loadPredictions() {
+    try {
+        const response = await fetch("{% url 'predictions_api' %}");
+        const data = await response.json();
+
+        // Update chart
+        const ctx = document.getElementById('timelineChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.caseTypes,
+                datasets: [{
+                    label: 'Avg Resolution Time (Months)',
+                    data: data.avgDuration,
+                    backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Case Resolution Timeline'
+                    }
+                }
+            }
+        });
+
+        // Update suggestions
+        const suggestionsList = document.getElementById('suggestionsList');
+        suggestionsList.innerHTML = '';
+        data.suggestedActions.forEach(action => {
+            const div = document.createElement('div');
+            div.className = 'alert alert-light d-flex align-items-center mb-2';
+            div.innerHTML = `
+                <i class="fas fa-lightbulb text-warning me-2"></i>
+                <span class="small">${action}</span>
+            `;
+            suggestionsList.appendChild(div);
+        });
+    } catch (error) {
+        console.error('Error loading predictions:', error);
+    }
+}
+
+function setupDocumentUpload() {
+    const dropzone = document.getElementById('documentDropzone');
+    const fileInput = document.getElementById('file-input');
+    const progress = document.getElementById('uploadProgress');
+
+    // Drag and drop functionality
+    dropzone.addEventListener('click', () => fileInput.click());
+    
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileUpload(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFileUpload(e.target.files[0]);
+        }
+    });
+
+    async function handleFileUpload(file) {
+        if (!file.type.match('application/pdf|text/plain|application/msword|application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+            alert('Please upload PDF, DOC, DOCX, or TXT files only.');
+            return;
+        }
+
+        progress.classList.remove('d-none');
+        const progressBar = progress.querySelector('.progress-bar');
+        
+        // Simulate upload progress
+        let progressValue = 0;
+        const progressInterval = setInterval(() => {
+            progressValue += 5;
+            progressBar.style.width = progressValue + '%';
+            if (progressValue >= 100) {
+                clearInterval(progressInterval);
+                processFileUpload(file);
+            }
+        }, 100);
+    }
+
+    async function processFileUpload(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        try {
+            const response = await fetch("{% url 'upload_document_api' %}", {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            document.getElementById('uploadProgress').classList.add('d-none');
+            
+            if (data.success) {
+                addDocumentSummary(file.name, data.summary);
+                updateDashboardStats(); // Refresh stats
+            } else {
+                alert('Error uploading file: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Error uploading file');
+        }
+    }
+
+    function addDocumentSummary(filename, summary) {
+        const summariesDiv = document.getElementById('documentSummaries');
+        const summaryElement = document.createElement('div');
+        summaryElement.className = 'alert alert-success';
+        summaryElement.innerHTML = `
+            <h6><i class="fas fa-file-pdf me-2"></i>${filename}</h6>
+            <p class="mb-0 small">${summary}</p>
+        `;
+        summariesDiv.appendChild(summaryElement);
+    }
+}
+
+function loadRecentActivity() {
+    // Simulate recent activity - replace with actual API
+    const activities = [
+        { type: 'chat', content: 'Asked about tenant rights', time: '2 min ago' },
+        { type: 'upload', content: 'Uploaded rental_agreement.pdf', time: '1 hour ago' },
+        { type: 'query', content: 'Searched for IPC Section 420', time: '3 hours ago' }
+    ];
+
+    const activityList = document.getElementById('recentActivity');
+    activities.forEach(activity => {
+        const item = document.createElement('div');
+        item.className = 'activity-item';
+        item.innerHTML = `
+            <div class="d-flex w-100 justify-content-between">
+                <span class="small">${activity.content}</span>
+                <small class="text-muted">${activity.time}</small>
+            </div>
+        `;
+        activityList.appendChild(item);
+    });
+}
+
+// Chat functionality for dashboard
+function sendDashboardMessage() {
+    const input = document.getElementById('dashboard-user-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+
+    addDashboardMessage('user', message);
+    input.value = '';
+
+    // Simulate AI response - replace with actual API call
+    setTimeout(() => {
+        addDashboardMessage('ai', 'Thank you for your query. I am processing your legal question and will provide relevant information based on Indian laws and regulations.');
+    }, 1000);
+}
+
+function addDashboardMessage(sender, content) {
+    const chatBody = document.getElementById('dashboard-chat-body');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}-message`;
+    
+    messageDiv.innerHTML = `
+        <div class="message-content">
+            ${content}
+        </div>
+    `;
+    
+    chatBody.appendChild(messageDiv);
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+</script>
+{% endblock %}

@@ -1,140 +1,478 @@
 {% extends "core/base.html" %}
 
 {% block content %}
-<div class="d-flex mx-auto" style="max-width: 900px; height: 80vh; gap:1rem;">
-    <!-- Sidebar: Conversation History -->
-    <div class="card shadow" style="width: 250px; overflow-y:auto;">
-        <div class="card-header bg-secondary text-white text-center fw-bold">
-            History
+<div class="row g-4">
+    <!-- Sidebar -->
+    <div class="col-lg-3">
+        <div class="card card-hover">
+            <div class="card-header legal-gradient text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Conversation History</h6>
+                    <button class="btn btn-sm btn-light" id="newChatBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="historyList">
+                    <!-- History items will be populated here -->
+                </div>
+            </div>
         </div>
-        <ul class="list-group list-group-flush" id="historyList">
-            <!-- Filled dynamically -->
-        </ul>
+
+        <!-- Quick Actions -->
+        <div class="card card-hover mt-4">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-question" data-question="How to file an FIR?">
+                    <i class="fas fa-file-alt me-2"></i>File FIR
+                </button>
+                <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-question" data-question="What are my tenant rights?">
+                    <i class="fas fa-home me-2"></i>Tenant Rights
+                </button>
+                <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-question" data-question="How to write a legal notice?">
+                    <i class="fas fa-envelope me-2"></i>Legal Notice
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Main Chat -->
-    <div class="card shadow flex-grow-1 d-flex flex-column">
-        <!-- Header -->
-        <div class="card-header bg-primary text-white text-center fw-bold d-flex justify-content-between align-items-center">
-            NyayAI Chat
-            <button class="btn btn-sm btn-light" id="darkModeToggle">🌙</button>
-        </div>
+    <!-- Main Chat Area -->
+    <div class="col-lg-9">
+        <div class="card card-hover h-100">
+            <div class="card-header legal-gradient text-white d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-robot me-2"></i>
+                    <span class="fw-bold">NyayAI Legal Assistant</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-light" id="clearChatBtn" title="Clear Chat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light" id="darkModeToggle" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
 
-        <!-- Chat body -->
-        <div class="card-body flex-grow-1 overflow-auto" id="chat-body">
-            <!-- Messages go here -->
-        </div>
+            <!-- Chat Messages -->
+            <div class="card-body d-flex flex-column" style="min-height: 500px;">
+                <div class="flex-grow-1 overflow-auto p-3" id="chat-body">
+                    <!-- Welcome Message -->
+                    <div class="text-center text-muted my-5" id="welcomeMessage">
+                        <i class="fas fa-balance-scale fa-3x mb-3 text-primary"></i>
+                        <h4>Welcome to NyayAI</h4>
+                        <p class="mb-0">Your AI-powered legal assistant. Ask me about Indian laws, rights, or legal procedures.</p>
+                    </div>
+                </div>
 
-        <!-- Footer -->
-        <div class="card-footer d-flex">
-            <input type="text" id="user-input" class="form-control" placeholder="Ask your legal query...">
-            <button class="btn btn-primary ms-2" id="sendBtn">Send</button>
+                <!-- Typing Indicator -->
+                <div class="typing-indicator d-none align-items-center px-3 py-2" id="typingIndicator">
+                    <div class="typing-dots me-2">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <small class="text-muted">NyayAI is typing...</small>
+                </div>
+
+                <!-- Input Area -->
+                <div class="card-footer bg-transparent">
+                    <div class="input-group">
+                        <input type="text" 
+                               id="user-input" 
+                               class="form-control" 
+                               placeholder="Ask about Indian laws, rights, or legal procedures..."
+                               autocomplete="off">
+                        <button class="btn btn-primary" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            NyayAI provides general legal information, not legal advice.
+                        </small>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-/* Chat Bubbles */
-.ai-message {
-    background-color: #e9ecef;
-    color: black;
-    align-self: flex-start;
-    line-height: 1.6;
-    text-align: left;
+/* Enhanced Chat Styles */
+.chat-container {
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.ai-message strong {
-    color: #0d6efd;
-    font-weight: 600;
-}
-
-.ai-message em {
-    font-style: italic;
-    color: #6c757d;
-}
-
-.ai-message br {
-    margin-bottom: 0.5rem;
-    display: block;
-    content: "";
-}
-
-/* Dark mode support */
-body.dark-mode .ai-message {
-    background-color: #2c2c2c;
-    color: #e0e0e0;
-}
-
-body.dark-mode .ai-message strong {
-    color: #4da6ff;
-}
 .chat-message {
-    padding: 10px 15px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-    max-width: 70%;
-    word-wrap: break-word;
+    max-width: 80%;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.3s ease-in;
 }
 
 .user-message {
-    background-color: #0d6efd;
-    color: white;
     align-self: flex-end;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
 }
 
 .ai-message {
-    background-color: #e9ecef;
-    color: black;
     align-self: flex-start;
+    background: #f1f5f9;
+    color: #334155;
+    border-radius: 18px 18px 18px 4px;
+    border: 1px solid #e2e8f0;
 }
 
-/* Dark mode overrides */
-body.dark-mode {
-    background-color: #121212;
-    color: #e0e0e0;
+.message-content {
+    padding: 12px 16px;
+    line-height: 1.5;
 }
 
-body.dark-mode .card {
-    background-color: #1e1e1e;
-    color: #e0e0e0;
+.message-time {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 4px;
 }
 
-body.dark-mode .user-message {
-    background-color: #0d6efd;
+.typing-indicator {
+    background: #f8fafc;
+    border-radius: 8px;
 }
 
-body.dark-mode .ai-message {
-    background-color: #2c2c2c;
-    color: #e0e0e0;
-}
-
-body.dark-mode .list-group-item {
-    background-color: #2c2c2c;
-    color: #e0e0e0;
-}
-
-.loading-dots span {
+.typing-dots span {
     display: inline-block;
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     margin: 0 2px;
-    background-color: #000;
+    background: #64748b;
     border-radius: 50%;
-    animation: bounce 1.2s infinite ease-in-out;
+    animation: typingBounce 1.4s infinite ease-in-out;
 }
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-body.dark-mode .loading-dots span { background-color: #e0e0e0; }
 
-#historyList { max-height: 70vh; overflow-y: auto; }
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+    0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Legal citation styling */
+.legal-citation {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .ai-message {
+    background: var(--dark-card);
+    color: #e2e8f0;
+    border-color: #374151;
+}
+
+[data-bs-theme="dark"] .legal-citation {
+    background: #374151;
+    border-left-color: #f59e0b;
+}
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     let conversationHistory = [];
+    let currentChatIndex = 0;
+    
+
+    // Initialize
+    initializeChat();
+
+    function initializeChat() {
+        loadConversationHistory();
+        setupEventListeners();
+    }
+
+    function setupEventListeners() {
+        // Send message
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Quick actions
+        document.querySelectorAll('.quick-question').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('user-input').value = this.dataset.question;
+                sendMessage();
+            });
+        });
+
+        // New chat
+        document.getElementById('newChatBtn').addEventListener('click', startNewChat);
+        
+        // Clear chat
+        document.getElementById('clearChatBtn').addEventListener('click', clearCurrentChat);
+    }
+
+    function sendMessage() {
+    const input = document.getElementById('user-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+
+    // Hide welcome message
+    document.getElementById('welcomeMessage')?.classList.add('d-none');
+
+    // Add user message
+    addMessageToChat('user', message);
+    input.value = '';
+
+    // Show typing indicator
+    showTypingIndicator();
+
+    // Send to backend
+    fetch("/api/query/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: "user_input=" + encodeURIComponent(message)
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTypingIndicator();
+        const aiResponse = data.response || data.error || "I apologize, but I couldn't process your request.";
+        addMessageToChat('ai', aiResponse);
+        
+        // FIXED: Update conversation history properly
+        if (conversationHistory.length === 0 || !conversationHistory[currentChatIndex]) {
+            // Create new conversation if none exists
+            conversationHistory.push({
+                title: message.length > 30 ? message.substring(0, 30) + '...' : message,
+                messages: []
+            });
+            currentChatIndex = conversationHistory.length - 1;
+        }
+        
+        // Add both user and AI messages to current conversation
+        conversationHistory[currentChatIndex].messages.push(
+            { sender: 'user', text: message },
+            { sender: 'ai', text: aiResponse }
+        );
+        
+        updateHistorySidebar();
+    })
+    .catch(error => {
+        hideTypingIndicator();
+        addMessageToChat('ai', "Sorry, I encountered an error. Please try again.");
+        console.error('Error:', error);
+    });
+}
+
+    function addMessageToChat(sender, content) {
+        const chatBody = document.getElementById('chat-body');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}-message`;
+        
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                ${sender === 'ai' ? formatAIResponse(content) : content}
+            </div>
+            <div class="message-time text-end">${timestamp}</div>
+        `;
+        
+        chatBody.appendChild(messageDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function formatAIResponse(text) {
+        // Format legal citations
+        text = text.replace(/(IPC Section \d+|CrPC Section \d+)/g, '<mark class="legal-citation">$1</mark>');
+        
+        // Format bold text
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Format lists
+        text = text.replace(/(\d+\.)\s/g, '<br><strong>$1</strong> ');
+        
+        // Add line breaks
+        text = text.replace(/\n/g, '<br>');
+        
+        return text;
+    }
+
+    function showTypingIndicator() {
+        document.getElementById('typingIndicator').classList.remove('d-none');
+        document.getElementById('chat-body').scrollTop = document.getElementById('chat-body').scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+        document.getElementById('typingIndicator').classList.add('d-none');
+    }
+function startNewChat() {
+    conversationHistory.push({
+        title: 'New Chat',
+        messages: []
+    });
+    currentChatIndex = conversationHistory.length - 1;
+    
+    // Clear chat area and show welcome message
+    const chatBody = document.getElementById('chat-body');
+    chatBody.innerHTML = `
+        <div class="text-center text-muted my-5" id="welcomeMessage">
+            <i class="fas fa-balance-scale fa-3x mb-3 text-primary"></i>
+            <h4>Welcome to NyayAI</h4>
+            <p class="mb-0">Your AI-powered legal assistant. Ask me about Indian laws, rights, or legal procedures.</p>
+        </div>
+    `;
+    
+    updateHistorySidebar();
+    
+    // Save to localStorage
+    localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
+}
+function clearCurrentChat() {
+    if (confirm('Are you sure you want to delete this chat?')) {
+        // Remove the current conversation from history
+        conversationHistory.splice(currentChatIndex, 1);
+        
+        // If there are no conversations left, create a new empty one
+        if (conversationHistory.length === 0) {
+            conversationHistory.push({
+                title: 'New Chat',
+                messages: []
+            });
+            currentChatIndex = 0;
+        } else {
+            // If we deleted the last conversation, move to the previous one
+            if (currentChatIndex >= conversationHistory.length) {
+                currentChatIndex = conversationHistory.length - 1;
+            }
+        }
+        
+        // Load the current conversation
+        loadConversation(currentChatIndex);
+        updateHistorySidebar();
+        
+        // Save to localStorage
+        localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
+    }
+}
+
+function updateConversationHistory(userMessage, aiResponse) {
+    if (!conversationHistory[currentChatIndex]) {
+        conversationHistory[currentChatIndex] = {
+            title: userMessage.length > 30 ? userMessage.substring(0, 30) + '...' : userMessage,
+            messages: []
+        };
+    }
+    
+    conversationHistory[currentChatIndex].messages.push(
+        { sender: 'user', content: userMessage },
+        { sender: 'ai', content: aiResponse }
+    );
+    
+    updateHistorySidebar();
+}
+
+function updateHistorySidebar() {
+    const historyList = document.getElementById('historyList');
+    historyList.innerHTML = '';
+    
+    conversationHistory.forEach((convo, idx) => {
+        const li = document.createElement('li');
+        li.className = `list-group-item ${idx === currentChatIndex ? 'active' : ''}`;
+        li.style.cursor = 'pointer';
+        li.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-truncate">${convo.title || 'Untitled Chat'}</span>
+                <small class="text-muted">${convo.messages ? convo.messages.length/2 : 0} msgs</small>
+            </div>
+        `;
+        li.addEventListener('click', () => loadConversation(idx));
+        historyList.appendChild(li);
+    });
+}
+
+function loadConversation(index) {
+    const chatBody = document.getElementById('chat-body');
+    chatBody.innerHTML = '';
+    
+    // Hide welcome message when loading a conversation
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    if (welcomeMessage) {
+        welcomeMessage.style.display = 'none';
+    }
+    
+    const convo = conversationHistory[index];
+    currentChatIndex = index; // Make sure to update current chat index
+    
+    if (convo && convo.messages) {
+        convo.messages.forEach(m => {
+            const messageDiv = createMessageDiv(m);
+            chatBody.appendChild(messageDiv);
+        });
+    }
+    
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+
+function loadConversation(index) {
+    const chatBody = document.getElementById('chat-body');
+    chatBody.innerHTML = '';
+    
+    const convo = conversationHistory[index];
+    currentChatIndex = index;
+    
+    if (convo && convo.messages && convo.messages.length > 0) {
+        // Hide welcome message if there are messages
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        if (welcomeMessage) {
+            welcomeMessage.style.display = 'none';
+        }
+        
+        // Load all messages
+        convo.messages.forEach(m => {
+            const messageDiv = createMessageDiv(m);
+            chatBody.appendChild(messageDiv);
+        });
+    } else {
+        // Show welcome message for empty conversations
+        chatBody.innerHTML = `
+            <div class="text-center text-muted my-5" id="welcomeMessage">
+                <i class="fas fa-balance-scale fa-3x mb-3 text-primary"></i>
+                <h4>Welcome to NyayAI</h4>
+                <p class="mb-0">Your AI-powered legal assistant. Ask me about Indian laws, rights, or legal procedures.</p>
+            </div>
+        `;
+    }
+    
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+
 
     function getCSRFToken() {
+        // Your existing CSRF token implementation
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             document.cookie.split(';').forEach(cookie => {
@@ -147,146 +485,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return cookieValue;
     }
 
-    function createMessageDiv(msg) {
-        const div = document.createElement('div');
-        div.className = 'chat-message ' + (msg.sender === 'user' ? 'user-message' : 'ai-message');
-        div.innerText = msg.text;
-        return div;
-    }
-
-    function updateHistorySidebar() {
-        const historyList = document.getElementById('historyList');
-        historyList.innerHTML = '';
-        conversationHistory.forEach((convo, idx) => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item';
-            li.innerText = convo.title;
-            li.onclick = () => loadConversation(idx);
-            historyList.appendChild(li);
-        });
-        historyList.scrollTop = historyList.scrollHeight;
-    }
-
-    function loadConversation(index) {
-        const chatBody = document.getElementById('chat-body');
-        chatBody.innerHTML = '';
-        const convo = conversationHistory[index];
-        convo.messages.forEach(m => chatBody.appendChild(createMessageDiv(m)));
-        chatBody.scrollTop = chatBody.scrollHeight;
-    }
-
-    function sendMessage() {
-        const input = document.getElementById('user-input');
-        const text = input.value.trim();
-        if (!text) return;
-
-        const chatBody = document.getElementById('chat-body');
-
-        // User message
-        const userMsg = { sender: 'user', text };
-        chatBody.appendChild(createMessageDiv(userMsg));
-
-        // AI placeholder
-        const aiMsg = { sender: 'ai', text: '' };
-        const aiDiv = createMessageDiv(aiMsg);
-        const dots = document.createElement('span');
-        dots.className = 'loading-dots';
-        dots.innerHTML = '<span></span><span></span><span></span>';
-        aiDiv.appendChild(dots);
-        chatBody.appendChild(aiDiv);
-
-        chatBody.scrollTop = chatBody.scrollHeight;
-        input.value = '';
-
-        // Save plain text to history
-        conversationHistory.push({
-            title: text,
-            messages: [
-                { sender: 'user', text: text },
-                { sender: 'ai', text: '' }
-            ]
-        });
-        updateHistorySidebar();
-
-
-
-
-fetch("/api/query/", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-CSRFToken": getCSRFToken()
-    },
-    body: "user_input=" + encodeURIComponent(text)
-})
-        .then(res => res.json())
-     .then(data => {
-    console.log("API Response:", data); // Debug logging
-    
-    let aiText;
-    if (data.response) {
-        // Successful response from your rag_service
-        aiText = formatResponse(data.response);
-    } else if (data.error) {
-        // Error response from your backend
-        aiText = "⚠️ Error: " + data.error;
-    } else {
-        // Unexpected response format
-        aiText = "⚠️ Unexpected response format from server";
-        console.error("Unexpected response:", data);
-    }
-    
-    aiDiv.innerHTML = aiText;
-
-    // Update history
-    const lastConvo = conversationHistory[conversationHistory.length - 1];
-    lastConvo.messages[1].text = aiText;
-
-    chatBody.scrollTop = chatBody.scrollHeight;
-})
-        .catch(err => {
-            aiDiv.innerHTML = "⚠️ Error: " + err;
-            const lastConvo = conversationHistory[conversationHistory.length - 1];
-            lastConvo.messages[1].text = aiDiv.innerText;
-            chatBody.scrollTop = chatBody.scrollHeight;
-            console.error(err);
-        });
-    }
-
-    // Event listeners
-    document.getElementById('sendBtn').addEventListener('click', sendMessage);
-    document.getElementById('user-input').addEventListener('keydown', e => {
-        if(e.key === 'Enter') sendMessage();
-    });
-    document.getElementById('darkModeToggle').addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
+    // Save history when leaving page
+    window.addEventListener('beforeunload', function() {
+        localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
     });
 });
-
-
-
-function formatResponse(text) {
-    // Replace numbered lists with HTML
-    text = text.replace(/(\d+\.)\s/g, '<br><strong>$1</strong> ');
-    
-    // Replace **bold** with <strong>
-    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Replace *italic* with <em>
-    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    
-    // Add line breaks for paragraphs
-    text = text.replace(/\n\n/g, '<br><br>');
-    
-    // Add line breaks for single newlines
-    text = text.replace(/\n/g, '<br>');
-    
-    // Format important notes and additional tips
-    text = text.replace(/(Additional tips:|Important notes:)/g, '<br><br><strong>$1</strong><br>');
-    
-    return text;
-}
-
 </script>
-
 {% endblock %}

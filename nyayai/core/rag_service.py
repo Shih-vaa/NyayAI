@@ -8,6 +8,74 @@ import google.generativeai as genai
 from collections import defaultdict
 from datetime import timedelta
 
+
+
+
+
+
+# ---------------------------
+# Legal System Prompt (RACE)
+# ---------------------------
+LEGAL_SYSTEM_PROMPT = """
+ROLE:
+You are NyayAI, an AI-powered legal assistant specialized in Indian law.
+
+AUDIENCE:
+Your users are ordinary Indian citizens with little or no legal background.
+
+CONTEXT:
+- Only answer questions related to legal rights, laws, acts, IPC, CrPC, FIRs, contracts, or court procedures.
+- Refuse politely if the query is unrelated (e.g., sports, movies, personal advice).
+- Provide simple explanations with citations (e.g., “IPC Section 420”).
+- Keep the conversation friendly and natural.
+- Always include the disclaimer: “⚠️ This is general legal information, not legal advice.”
+
+EXECUTION:
+1. Read the user’s question.
+2. If non-legal, refuse politely but engage naturally.
+3. If legal, use retrieved legal documents and your knowledge to give a plain-language answer.
+4. Add citations and references.
+5. Suggest practical next steps.
+6. End with the disclaimer.
+"""
+
+
+# ---------------------------
+# Legal query pre-filter
+# ---------------------------
+LEGAL_KEYWORDS = [
+    "ipc", "crpc", "fir", "law", "contract", "rights", "case", "section",
+    "act", "judgment", "notice", "civil", "criminal", "constitution", "court",
+    "eviction", "dispute", "property", "penalty", "fine", "harassment", "employment"
+]
+
+def is_legal_query(query: str) -> bool:
+    query_lower = query.lower()
+    return any(keyword in query_lower for keyword in LEGAL_KEYWORDS)
+
+
+
+
+
+
+
+
+
+GREETINGS = ["hi", "hello", "hey"]
+CASUAL_MESSAGES = ["ok", "thanks", "thank you", "bye", "good morning", "good evening"]
+
+def handle_casual_message(query):
+    query_lower = query.lower().strip()
+    if query_lower in GREETINGS:
+        return "Hello! I’m NyayAI, your legal assistant. You can ask me any question about Indian law or your rights."
+    elif query_lower in CASUAL_MESSAGES:
+        return "I see! If you have any legal questions, feel free to ask me."
+    return None
+
+
+
+
+
 # Optional import for Redis (used if REDIS URL is provided)
 try:
     import redis
@@ -128,43 +196,56 @@ def _get_gemini_client():
 # ---------------------------
 def query_rag(user_query, top_k=1, session_id="default"):
     """
-    Main function with conversation memory persisted in Redis (recommended) or in-memory (fallback).
-    session_id must be stable across chat turns (client should send same session_id cookie/UUID).
+    Natural-feeling legal assistant with:
+    - RACE prompt enforcement
+    - Legal pre-filter
+    - Casual greeting handling
+    - Conversation persistence
     """
     try:
-        # Clean up old sessions (only for in-memory)
         cleanup_old_sessions()
+
+        # ----------------
+        # 1. Handle casual/greeting messages
+        casual_response = handle_casual_message(user_query)
+        if casual_response:
+            _append_message(session_id, "assistant", casual_response)
+            return casual_response
 
         backend = CURRENT_BACKEND
         config = MODEL_CONFIG.get(backend, {})
 
-        # If API key required but missing -> helpful message
-        if config.get("requires_key", True):
-            api_key_env = {
-                LLMBackend.GROQ.value: "GROQ_API_KEY",
-                LLMBackend.GEMINI.value: "GEMINI_API_KEY"
-            }.get(backend)
-            if api_key_env and not os.getenv(api_key_env):
-                return f"⚠️ Please set {api_key_env} environment variable for {backend}"
+        # ----------------
+        # 2. Check if query is legal
+        if not is_legal_query(user_query):
+            response_text = (
+                "⚠️ I can only answer legal questions. "
+                "Feel free to ask about laws, your rights, contracts, or court procedures."
+            )
+            _append_message(session_id, "assistant", response_text)
+            return response_text
 
-        # Load current conversation from store
+        # ----------------
+        # 3. Load conversation & append user query
         conversation_history = _load_conversation(session_id)
-
-        # Append the new user message (persisted)
         _append_message(session_id, "user", user_query)
-        # reload local history from store (so we include the persisted message)
         conversation_history = _load_conversation(session_id)
-
-        # Build context slice to send to model
         messages_to_send = conversation_history[-_MAX_MESSAGES_FOR_SEND:]
 
-        # Prepare messages for API based on backend (keep your original behaviour)
+        # Prepend system prompt
+        messages_with_system = [{"role": "system", "content": LEGAL_SYSTEM_PROMPT}] + messages_to_send
+
+        conversation_context_str = "\n".join([f"{m['role']}: {m['content']}" for m in messages_with_system])
+        full_query_str = f"{conversation_context_str}\nUser: {user_query}"
+
+        # ----------------
+        # 4. Backend-specific call
+        response_text = ""
         if backend == LLMBackend.GROQ.value:
             client = _get_groq_client()
-            # Groq client expects messages as list of dicts with role/content
             completion = client.chat.completions.create(
                 model=config["model"],
-                messages=messages_to_send,
+                messages=messages_with_system,
                 temperature=0.7,
                 max_tokens=1024
             )
@@ -172,19 +253,13 @@ def query_rag(user_query, top_k=1, session_id="default"):
 
         elif backend == LLMBackend.GEMINI.value:
             model = _get_gemini_client()
-            # Convert messages to a readable conversation context for Gemini (string)
-            conversation_context = "\n".join([f"{m['role']}: {m['content']}" for m in messages_to_send])
-            full_query = f"Conversation context:\n{conversation_context}\n\nAssistant, answer the user's last message in plain language.\nUser: {user_query}"
-            response = model.generate_content(full_query)
-            # adapt to expected attribute names of the genai response object
+            response = model.generate_content(full_query_str)
             response_text = getattr(response, "text", None) or str(response)
 
         elif backend == LLMBackend.OLLAMA.value:
-            conversation_context = "\n".join([f"{m['role']}: {m['content']}" for m in messages_to_send])
-            full_query = f"{conversation_context}\nUser: {user_query}"
             response = requests.post(
                 config["api_url"],
-                json={"model": config["model"], "prompt": full_query, "stream": False},
+                json={"model": config["model"], "prompt": full_query_str, "stream": False},
                 timeout=30
             )
             response.raise_for_status()
@@ -192,18 +267,18 @@ def query_rag(user_query, top_k=1, session_id="default"):
             response_text = data.get("response", "").strip()
 
         else:
-            return "⚠️ No valid backend selected."
+            response_text = "⚠️ No valid backend selected."
 
-        # Persist assistant response
+        # ----------------
+        # 5. Persist assistant response
         _append_message(session_id, "assistant", response_text)
-
-        # Return the answer text
         return response_text
 
     except requests.exceptions.RequestException as e:
         return f"⚠️ Network error: {str(e)}"
     except Exception as e:
         return f"⚠️ Error with {backend} backend: {str(e)}"
+
 
 # ---------------------------
 # Utility functions you already had, unchanged (but updated to work with Redis)
