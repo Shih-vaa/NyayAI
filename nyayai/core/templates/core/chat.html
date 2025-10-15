@@ -17,27 +17,117 @@
                 <div class="list-group list-group-flush" id="historyList">
                     <!-- History items will be populated here -->
                 </div>
+
             </div>
         </div>
 
         <!-- Quick Actions -->
         <div class="card card-hover mt-4">
             <div class="card-header bg-success text-white">
-                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Legal Quick Actions</h6>
             </div>
             <div class="card-body">
-                <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-question" data-question="How to file an FIR?">
-                    <i class="fas fa-file-alt me-2"></i>File FIR
+                <div class="mb-3">
+                    <small class="text-muted fw-bold">CIVIL CASES</small>
+                    <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-question"
+                        data-question="How to file a consumer complaint?">
+                        <i class="fas fa-shopping-cart me-2"></i>Consumer Complaint
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-question"
+                        data-question="What are the steps for property dispute resolution?">
+                        <i class="fas fa-home me-2"></i>Property Dispute
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-question"
+                        data-question="How to recover money through legal notice?">
+                        <i class="fas fa-rupee-sign me-2"></i>Money Recovery
+                    </button>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-muted fw-bold">CRIMINAL CASES</small>
+                    <button class="btn btn-outline-danger btn-sm w-100 mb-2 quick-question"
+                        data-question="How to file an FIR step by step?">
+                        <i class="fas fa-file-alt me-2"></i>File FIR
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm w-100 mb-2 quick-question"
+                        data-question="What to do in case of cyber crime?">
+                        <i class="fas fa-laptop me-2"></i>Cyber Crime
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm w-100 mb-2 quick-question"
+                        data-question="How to deal with harassment case?">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Harassment
+                    </button>
+                </div>
+
+                <div>
+                    <small class="text-muted fw-bold">LEGAL DOCUMENTS</small>
+                    <button class="btn btn-outline-info btn-sm w-100 mb-2 quick-question"
+                        data-question="How to draft a legal notice?">
+                        <i class="fas fa-envelope me-2"></i>Legal Notice
+                    </button>
+                    <button class="btn btn-outline-info btn-sm w-100 mb-2 quick-question"
+                        data-question="What should be included in an affidavit?">
+                        <i class="fas fa-file-contract me-2"></i>Affidavit
+                    </button>
+                    <button class="btn btn-outline-info btn-sm w-100 quick-question"
+                        data-question="How to prepare a court case file?">
+                        <i class="fas fa-folder me-2"></i>Case File Prep
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case Assessment Panel -->
+        <div class="card card-hover mt-4">
+            <div class="card-header bg-warning text-white">
+                <h6 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Case Assessment</h6>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-outline-warning btn-sm w-100 mb-2" id="startCaseAssessment">
+                    <i class="fas fa-play me-2"></i>Start Case Assessment
                 </button>
-                <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-question" data-question="What are my tenant rights?">
-                    <i class="fas fa-home me-2"></i>Tenant Rights
+                <button class="btn btn-outline-info btn-sm w-100 mb-2" id="documentChecklist">
+                    <i class="fas fa-checklist me-2"></i>Document Checklist
                 </button>
-                <button class="btn btn-outline-primary btn-sm w-100 mb-2 quick-question" data-question="How to write a legal notice?">
-                    <i class="fas fa-envelope me-2"></i>Legal Notice
+                <button class="btn btn-outline-success btn-sm w-100" id="courtJurisdiction">
+                    <i class="fas fa-gavel me-2"></i>Court Jurisdiction Helper
                 </button>
             </div>
         </div>
-    </div>
+
+        <!-- Document Upload Card -->
+        <div class="card card-hover mt-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Document Analysis</h6>
+            </div>
+            <div class="card-body">
+                <!-- Drag & Drop Zone -->
+                <div class="drop-zone border rounded p-3 text-center mb-3" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                    <p class="text-muted small mb-2">Upload PDF, DOC, DOCX, TXT files</p>
+                    <input type="file" id="fileInput" class="d-none" accept=".pdf,.doc,.docx,.txt">
+                    <button class="btn btn-info btn-sm" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Choose Files
+                    </button>
+                </div>
+
+                <!-- Upload Progress -->
+                <div class="upload-progress d-none" id="uploadProgress">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">Processing...</small>
+                        <small class="text-muted" id="progressText">0%</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar"
+                            style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Document Summaries -->
+                <div id="documentSummaries" class="mt-3"></div>
+            </div>
+        </div>
+    </div> <!-- Close col-lg-3 -->
 
     <!-- Main Chat Area -->
     <div class="col-lg-9">
@@ -48,6 +138,10 @@
                     <span class="fw-bold">NyayAI Legal Assistant</span>
                 </div>
                 <div class="d-flex gap-2">
+                    <!-- Document Upload Toggle -->
+                    <button class="btn btn-sm btn-light" id="attachFileBtn" title="Attach File">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
                     <button class="btn btn-sm btn-light" id="clearChatBtn" title="Clear Chat">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -64,9 +158,69 @@
                     <div class="text-center text-muted my-5" id="welcomeMessage">
                         <i class="fas fa-balance-scale fa-3x mb-3 text-primary"></i>
                         <h4>Welcome to NyayAI</h4>
-                        <p class="mb-0">Your AI-powered legal assistant. Ask me about Indian laws, rights, or legal procedures.</p>
+                        <p class="mb-0">Your AI-powered legal assistant. Ask me about Indian laws, rights, or legal
+                            procedures.</p>
+                        <div class="mt-4">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="showDocumentUpload()">
+                                <i class="fas fa-file-upload me-1"></i>Upload Document
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" id="startCaseAssessment">
+                                <i class="fas fa-clipboard-list me-1"></i>Case Assessment
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Document Upload Area -->
+                <div class="document-upload-area border-top p-3 d-none" id="documentUploadArea">
+                    <div class="mb-3">
+                        <h6 class="mb-3"><i class="fas fa-file-upload me-2 text-info"></i>Upload Legal Document</h6>
+
+                        <!-- Drag & Drop Zone -->
+                        <div class="drop-zone border rounded p-4 text-center mb-3" id="dropZone">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                            <h6>Drag & Drop Your Files Here</h6>
+                            <p class="text-muted mb-3">or click to browse</p>
+                            <input type="file" id="fileInput" class="d-none" accept=".pdf,.doc,.docx,.txt">
+                            <button class="btn btn-info" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-folder-open me-2"></i>Choose Files
+                            </button>
+                            <p class="small text-muted mt-2 mb-0">Supported formats: PDF, DOC, DOCX, TXT (Max 5MB)</p>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div class="upload-progress d-none" id="uploadProgress">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">Processing document...</small>
+                                <small class="text-muted" id="progressText">0%</small>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                                    id="progressBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Active Uploads -->
+                        <div id="activeUploads" class="mb-3"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="hideDocumentUpload()">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <div>
+                            <button class="btn btn-outline-info btn-sm me-2" id="documentChecklist">
+                                <i class="fas fa-checklist me-1"></i>Document Checklist
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" id="courtJurisdiction">
+                                <i class="fas fa-gavel me-1"></i>Court Jurisdiction
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Summaries -->
+                <div id="documentSummaries" class="border-top p-3 d-none"></div>
 
                 <!-- Typing Indicator -->
                 <div class="typing-indicator d-none align-items-center px-3 py-2" id="typingIndicator">
@@ -81,11 +235,8 @@
                 <!-- Input Area -->
                 <div class="card-footer bg-transparent">
                     <div class="input-group">
-                        <input type="text" 
-                               id="user-input" 
-                               class="form-control" 
-                               placeholder="Ask about Indian laws, rights, or legal procedures..."
-                               autocomplete="off">
+                        <input type="text" id="user-input" class="form-control"
+                            placeholder="Ask about Indian laws, rights, or legal procedures..." autocomplete="off">
                         <button class="btn btn-primary" id="sendBtn">
                             <i class="fas fa-paper-plane"></i>
                         </button>
@@ -93,402 +244,793 @@
                     <div class="mt-2">
                         <small class="text-muted">
                             <i class="fas fa-info-circle me-1"></i>
-                            NyayAI provides general legal information, not legal advice.
+                            NyayAI provides general legal information for educational purposes.
+                            <strong>Not a substitute for professional legal advice.</strong>
+                            Always consult a qualified lawyer for specific cases.
                         </small>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </div> <!-- Close col-lg-9 -->
+</div> <!-- Close row -->
 
 <style>
-/* Enhanced Chat Styles */
-.chat-container {
-    height: 70vh;
-    display: flex;
-    flex-direction: column;
-}
+    /* Enhanced Chat Styles */
+    .chat-container {
+        height: 70vh;
+        display: flex;
+        flex-direction: column;
+    }
 
-.chat-message {
-    max-width: 80%;
-    margin-bottom: 1rem;
-    animation: fadeIn 0.3s ease-in;
-}
+    .chat-message {
+        max-width: 80%;
+        margin-bottom: 1rem;
+        animation: fadeIn 0.3s ease-in;
+    }
 
-.user-message {
-    align-self: flex-end;
-    background: var(--primary-color);
-    color: white;
-    border-radius: 18px 18px 4px 18px;
-}
+    .user-message {
+        align-self: flex-end;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 18px 18px 4px 18px;
+    }
 
-.ai-message {
-    align-self: flex-start;
-    background: #f1f5f9;
-    color: #334155;
-    border-radius: 18px 18px 18px 4px;
-    border: 1px solid #e2e8f0;
-}
+    .ai-message {
+        align-self: flex-start;
+        background: #f1f5f9;
+        color: #334155;
+        border-radius: 18px 18px 18px 4px;
+        border: 1px solid #e2e8f0;
+    }
 
-.message-content {
-    padding: 12px 16px;
-    line-height: 1.5;
-}
+    .message-content {
+        padding: 12px 16px;
+        line-height: 1.5;
+    }
 
-.message-time {
-    font-size: 0.75rem;
-    opacity: 0.7;
-    margin-top: 4px;
-}
+    .message-time {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-top: 4px;
+    }
 
-.typing-indicator {
-    background: #f8fafc;
-    border-radius: 8px;
-}
+    /* FIXED: Make only chat area scrollable */
+    .card-body.d-flex.flex-column {
+        min-height: 500px;
+        max-height: 70vh;
+        display: flex;
+        flex-direction: column;
+    }
 
-.typing-dots span {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin: 0 2px;
-    background: #64748b;
-    border-radius: 50%;
-    animation: typingBounce 1.4s infinite ease-in-out;
-}
+    .flex-grow-1.overflow-auto {
+        flex: 1;
+        overflow-y: auto;
+        max-height: calc(70vh - 120px);
+        /* Account for header and input area */
+    }
 
-.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    /* Make history sidebar scrollable independently */
+    #historyList {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
 
-@keyframes typingBounce {
-    0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-    40% { transform: scale(1); opacity: 1; }
-}
+    .typing-indicator {
+        background: #f8fafc;
+        border-radius: 8px;
+        position: sticky;
+        bottom: 0;
+    }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+    .typing-dots span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin: 0 2px;
+        background: #64748b;
+        border-radius: 50%;
+        animation: typingBounce 1.4s infinite ease-in-out;
+    }
 
-/* Legal citation styling */
-.legal-citation {
-    background: #fff3cd;
-    border-left: 4px solid #ffc107;
-    padding: 8px 12px;
-    margin: 8px 0;
-    border-radius: 4px;
-    font-size: 0.9em;
-}
+    .typing-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
 
-/* Dark mode support */
-[data-bs-theme="dark"] .ai-message {
-    background: var(--dark-card);
-    color: #e2e8f0;
-    border-color: #374151;
-}
+    .typing-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
 
-[data-bs-theme="dark"] .legal-citation {
-    background: #374151;
-    border-left-color: #f59e0b;
-}
+    @keyframes typingBounce {
+
+        0%,
+        80%,
+        100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Legal citation styling */
+    .legal-citation {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 8px 12px;
+        margin: 8px 0;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    /* Dark mode support */
+    [data-bs-theme="dark"] .ai-message {
+        background: var(--dark-card);
+        color: #e2e8f0;
+        border-color: #374151;
+    }
+
+    [data-bs-theme="dark"] .legal-citation {
+        background: #374151;
+        border-left-color: #f59e0b;
+    }
+
+    /* Ensure main container doesn't cause page scroll */
+    .row.g-4 {
+        max-height: 85vh;
+        overflow: hidden;
+    }
+
+    /* Sidebar cards fixed height */
+    .col-lg-3 .card {
+        max-height: 85vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .col-lg-3 .card-body {
+        overflow-y: auto;
+        flex: 1;
+    }
+
+
+    /* Document Upload Styles - GPT Style */
+    .document-upload-area {
+        background: #f8f9fa;
+        border-color: #e9ecef !important;
+    }
+
+    .drop-zone {
+        border: 2px dashed #dee2e6;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: #f8f9fa;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+        border-color: #17a2b8;
+        background-color: rgba(23, 162, 184, 0.05);
+    }
+
+    .document-summary {
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .progress-bar-animated {
+        animation: progress-bar-stripes 1s linear infinite;
+    }
+
+    @keyframes progress-bar-stripes {
+        0% {
+            background-position: 1rem 0;
+        }
+
+        100% {
+            background-position: 0 0;
+        }
+    }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    let conversationHistory = [];
-    let currentChatIndex = 0;
-    
+    document.addEventListener('DOMContentLoaded', function () {
+        let conversationHistory = [];
+        let currentChatIndex = 0;
 
-    // Initialize
-    initializeChat();
+        // Initialize
+        initializeChat();
 
-    function initializeChat() {
-        loadConversationHistory();
-        setupEventListeners();
-    }
-
-    function setupEventListeners() {
-        // Send message
-        document.getElementById('sendBtn').addEventListener('click', sendMessage);
-        document.getElementById('user-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        // Quick actions
-        document.querySelectorAll('.quick-question').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.getElementById('user-input').value = this.dataset.question;
-                sendMessage();
-            });
-        });
-
-        // New chat
-        document.getElementById('newChatBtn').addEventListener('click', startNewChat);
-        
-        // Clear chat
-        document.getElementById('clearChatBtn').addEventListener('click', clearCurrentChat);
-    }
-
-    function sendMessage() {
-    const input = document.getElementById('user-input');
-    const message = input.value.trim();
-    
-    if (!message) return;
-
-    // Hide welcome message
-    document.getElementById('welcomeMessage')?.classList.add('d-none');
-
-    // Add user message
-    addMessageToChat('user', message);
-    input.value = '';
-
-    // Show typing indicator
-    showTypingIndicator();
-
-    // Send to backend
-    fetch("/api/query/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": getCSRFToken()
-        },
-        body: "user_input=" + encodeURIComponent(message)
-    })
-    .then(response => response.json())
-    .then(data => {
-        hideTypingIndicator();
-        const aiResponse = data.response || data.error || "I apologize, but I couldn't process your request.";
-        addMessageToChat('ai', aiResponse);
-        
-        // FIXED: Update conversation history properly
-        if (conversationHistory.length === 0 || !conversationHistory[currentChatIndex]) {
-            // Create new conversation if none exists
-            conversationHistory.push({
-                title: message.length > 30 ? message.substring(0, 30) + '...' : message,
-                messages: []
-            });
-            currentChatIndex = conversationHistory.length - 1;
+        function initializeChat() {
+            loadConversationHistory();
+            setupEventListeners();
+            initializeDocumentUpload(); // ADD THIS LINE - Document upload initialization
         }
-        
-        // Add both user and AI messages to current conversation
-        conversationHistory[currentChatIndex].messages.push(
-            { sender: 'user', text: message },
-            { sender: 'ai', text: aiResponse }
-        );
-        
-        updateHistorySidebar();
-    })
-    .catch(error => {
-        hideTypingIndicator();
-        addMessageToChat('ai', "Sorry, I encountered an error. Please try again.");
-        console.error('Error:', error);
-    });
-}
 
-    function addMessageToChat(sender, content) {
-        const chatBody = document.getElementById('chat-body');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${sender}-message`;
-        
-        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        messageDiv.innerHTML = `
+        function setupEventListeners() {
+            // Send message
+            document.getElementById('sendBtn').addEventListener('click', sendMessage);
+            document.getElementById('user-input').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            // Quick actions
+            document.querySelectorAll('.quick-question').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.getElementById('user-input').value = this.dataset.question;
+                    sendMessage();
+                });
+            });
+
+            // New chat
+            document.getElementById('newChatBtn').addEventListener('click', startNewChat);
+
+            // Clear chat
+            document.getElementById('clearChatBtn').addEventListener('click', clearCurrentChat);
+
+            // Enhanced Legal Features
+            document.getElementById('startCaseAssessment').addEventListener('click', startCaseAssessment);
+            document.getElementById('documentChecklist').addEventListener('click', showDocumentChecklist);
+            document.getElementById('courtJurisdiction').addEventListener('click', courtJurisdictionHelper);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Hide welcome message
+            document.getElementById('welcomeMessage')?.classList.add('d-none');
+
+            // Add user message
+            addMessageToChat('user', message);
+            input.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Send to backend
+            fetch("/api/query/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": getCSRFToken()
+                },
+                body: "user_input=" + encodeURIComponent(message)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    hideTypingIndicator();
+                    const aiResponse = data.response || data.error || "I apologize, but I couldn't process your request.";
+                    addMessageToChat('ai', aiResponse);
+
+                    // Update conversation history properly
+                    if (conversationHistory.length === 0 || !conversationHistory[currentChatIndex]) {
+                        // Create new conversation if none exists
+                        conversationHistory.push({
+                            title: message.length > 30 ? message.substring(0, 30) + '...' : message,
+                            messages: []
+                        });
+                        currentChatIndex = conversationHistory.length - 1;
+                    }
+
+                    // Add both user and AI messages to current conversation
+                    conversationHistory[currentChatIndex].messages.push(
+                        { sender: 'user', text: message },
+                        { sender: 'ai', text: aiResponse }
+                    );
+
+                    updateHistorySidebar();
+                    localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
+                })
+                .catch(error => {
+                    hideTypingIndicator();
+                    addMessageToChat('ai', "Sorry, I encountered an error. Please try again.");
+                    console.error('Error:', error);
+                });
+        }
+
+        function addMessageToChat(sender, content) {
+            const chatBody = document.getElementById('chat-body');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}-message`;
+
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            messageDiv.innerHTML = `
             <div class="message-content">
                 ${sender === 'ai' ? formatAIResponse(content) : content}
             </div>
             <div class="message-time text-end">${timestamp}</div>
         `;
-        
-        chatBody.appendChild(messageDiv);
-        chatBody.scrollTop = chatBody.scrollHeight;
-    }
 
-    function formatAIResponse(text) {
-        // Format legal citations
-        text = text.replace(/(IPC Section \d+|CrPC Section \d+)/g, '<mark class="legal-citation">$1</mark>');
-        
-        // Format bold text
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        
-        // Format lists
-        text = text.replace(/(\d+\.)\s/g, '<br><strong>$1</strong> ');
-        
-        // Add line breaks
-        text = text.replace(/\n/g, '<br>');
-        
-        return text;
-    }
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
 
-    function showTypingIndicator() {
-        document.getElementById('typingIndicator').classList.remove('d-none');
-        document.getElementById('chat-body').scrollTop = document.getElementById('chat-body').scrollHeight;
-    }
+        function createMessageDiv(msg) {
+            const div = document.createElement('div');
+            div.className = `chat-message ${msg.sender}-message`;
 
-    function hideTypingIndicator() {
-        document.getElementById('typingIndicator').classList.add('d-none');
-    }
-function startNewChat() {
-    conversationHistory.push({
-        title: 'New Chat',
-        messages: []
-    });
-    currentChatIndex = conversationHistory.length - 1;
-    
-    // Clear chat area and show welcome message
-    const chatBody = document.getElementById('chat-body');
-    chatBody.innerHTML = `
-        <div class="text-center text-muted my-5" id="welcomeMessage">
-            <i class="fas fa-balance-scale fa-3x mb-3 text-primary"></i>
-            <h4>Welcome to NyayAI</h4>
-            <p class="mb-0">Your AI-powered legal assistant. Ask me about Indian laws, rights, or legal procedures.</p>
-        </div>
-    `;
-    
-    updateHistorySidebar();
-    
-    // Save to localStorage
-    localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
-}
-function clearCurrentChat() {
-    if (confirm('Are you sure you want to delete this chat?')) {
-        // Remove the current conversation from history
-        conversationHistory.splice(currentChatIndex, 1);
-        
-        // If there are no conversations left, create a new empty one
-        if (conversationHistory.length === 0) {
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            div.innerHTML = `
+            <div class="message-content">
+                ${msg.sender === 'ai' ? formatAIResponse(msg.text) : msg.text}
+            </div>
+            <div class="message-time text-end">${timestamp}</div>
+        `;
+
+            return div;
+        }
+
+        function formatAIResponse(text) {
+            // Format legal citations
+            text = text.replace(/(IPC Section \d+|CrPC Section \d+|CPC Section \d+)/g, '<mark class="legal-citation">$1</mark>');
+
+            // Format case numbers and acts
+            text = text.replace(/(Consumer Protection Act|Hindu Marriage Act|Transfer of Property Act)/g, '<strong>$1</strong>');
+
+            // Format steps and procedures
+            text = text.replace(/(Step \d+:|Procedure:|Timeline:)/g, '<br><strong>$1</strong><br>');
+
+            // Format warnings and important notes
+            text = text.replace(/(⚠️|🚨|❗)(.*?)(?=\n|$)/g, '<div class="alert alert-warning mt-2">$2</div>');
+
+            // Format success tips
+            text = text.replace(/(💡|🌟)(.*?)(?=\n|$)/g, '<div class="alert alert-success mt-2">$2</div>');
+
+            // Format bold text
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // Format lists
+            text = text.replace(/(\d+\.)\s/g, '<br><strong>$1</strong> ');
+
+            // Add line breaks
+            text = text.replace(/\n/g, '<br>');
+
+            return text;
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').classList.remove('d-none');
+            document.getElementById('chat-body').scrollTop = document.getElementById('chat-body').scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('d-none');
+        }
+
+        function startNewChat() {
             conversationHistory.push({
                 title: 'New Chat',
                 messages: []
             });
-            currentChatIndex = 0;
-        } else {
-            // If we deleted the last conversation, move to the previous one
-            if (currentChatIndex >= conversationHistory.length) {
-                currentChatIndex = conversationHistory.length - 1;
-            }
-        }
-        
-        // Load the current conversation
-        loadConversation(currentChatIndex);
-        updateHistorySidebar();
-        
-        // Save to localStorage
-        localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
-    }
-}
+            currentChatIndex = conversationHistory.length - 1;
 
-function updateConversationHistory(userMessage, aiResponse) {
-    if (!conversationHistory[currentChatIndex]) {
-        conversationHistory[currentChatIndex] = {
-            title: userMessage.length > 30 ? userMessage.substring(0, 30) + '...' : userMessage,
-            messages: []
-        };
-    }
-    
-    conversationHistory[currentChatIndex].messages.push(
-        { sender: 'user', content: userMessage },
-        { sender: 'ai', content: aiResponse }
-    );
-    
-    updateHistorySidebar();
-}
-
-function updateHistorySidebar() {
-    const historyList = document.getElementById('historyList');
-    historyList.innerHTML = '';
-    
-    conversationHistory.forEach((convo, idx) => {
-        const li = document.createElement('li');
-        li.className = `list-group-item ${idx === currentChatIndex ? 'active' : ''}`;
-        li.style.cursor = 'pointer';
-        li.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-                <span class="text-truncate">${convo.title || 'Untitled Chat'}</span>
-                <small class="text-muted">${convo.messages ? convo.messages.length/2 : 0} msgs</small>
-            </div>
-        `;
-        li.addEventListener('click', () => loadConversation(idx));
-        historyList.appendChild(li);
-    });
-}
-
-function loadConversation(index) {
-    const chatBody = document.getElementById('chat-body');
-    chatBody.innerHTML = '';
-    
-    // Hide welcome message when loading a conversation
-    const welcomeMessage = document.getElementById('welcomeMessage');
-    if (welcomeMessage) {
-        welcomeMessage.style.display = 'none';
-    }
-    
-    const convo = conversationHistory[index];
-    currentChatIndex = index; // Make sure to update current chat index
-    
-    if (convo && convo.messages) {
-        convo.messages.forEach(m => {
-            const messageDiv = createMessageDiv(m);
-            chatBody.appendChild(messageDiv);
-        });
-    }
-    
-    chatBody.scrollTop = chatBody.scrollHeight;
-}
-
-
-function loadConversation(index) {
-    const chatBody = document.getElementById('chat-body');
-    chatBody.innerHTML = '';
-    
-    const convo = conversationHistory[index];
-    currentChatIndex = index;
-    
-    if (convo && convo.messages && convo.messages.length > 0) {
-        // Hide welcome message if there are messages
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        if (welcomeMessage) {
-            welcomeMessage.style.display = 'none';
-        }
-        
-        // Load all messages
-        convo.messages.forEach(m => {
-            const messageDiv = createMessageDiv(m);
-            chatBody.appendChild(messageDiv);
-        });
-    } else {
-        // Show welcome message for empty conversations
-        chatBody.innerHTML = `
+            // Clear chat area and show welcome message
+            const chatBody = document.getElementById('chat-body');
+            chatBody.innerHTML = `
             <div class="text-center text-muted my-5" id="welcomeMessage">
                 <i class="fas fa-balance-scale fa-3x mb-3 text-primary"></i>
                 <h4>Welcome to NyayAI</h4>
                 <p class="mb-0">Your AI-powered legal assistant. Ask me about Indian laws, rights, or legal procedures.</p>
             </div>
         `;
-    }
-    
-    chatBody.scrollTop = chatBody.scrollHeight;
-}
 
+            updateHistorySidebar();
+            localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
+        }
 
+        function clearCurrentChat() {
+            if (confirm('Are you sure you want to delete this chat?')) {
+                // Remove the current conversation from history
+                conversationHistory.splice(currentChatIndex, 1);
 
-    function getCSRFToken() {
-        // Your existing CSRF token implementation
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            document.cookie.split(';').forEach(cookie => {
-                const trimmed = cookie.trim();
-                if (trimmed.startsWith('csrftoken=')) {
-                    cookieValue = decodeURIComponent(trimmed.substring(10));
+                // If there are no conversations left, create a new empty one
+                if (conversationHistory.length === 0) {
+                    conversationHistory.push({
+                        title: 'New Chat',
+                        messages: []
+                    });
+                    currentChatIndex = 0;
+                } else {
+                    // If we deleted the last conversation, move to the previous one
+                    if (currentChatIndex >= conversationHistory.length) {
+                        currentChatIndex = conversationHistory.length - 1;
+                    }
                 }
+
+                // Load the current conversation
+                loadConversation(currentChatIndex);
+                updateHistorySidebar();
+                localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
+            }
+        }
+
+        function updateHistorySidebar() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            conversationHistory.forEach((convo, idx) => {
+                const li = document.createElement('li');
+                li.className = `list-group-item ${idx === currentChatIndex ? 'active' : ''}`;
+                li.style.cursor = 'pointer';
+                li.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-truncate">${convo.title || 'Untitled Chat'}</span>
+                    <small class="text-muted">${convo.messages ? convo.messages.length / 2 : 0} msgs</small>
+                </div>
+            `;
+                li.addEventListener('click', () => loadConversation(idx));
+                historyList.appendChild(li);
             });
         }
-        return cookieValue;
-    }
 
-    // Save history when leaving page
-    window.addEventListener('beforeunload', function() {
-        localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
+        function loadConversation(index) {
+            const chatBody = document.getElementById('chat-body');
+            chatBody.innerHTML = '';
+
+            const convo = conversationHistory[index];
+            currentChatIndex = index;
+
+            if (convo && convo.messages && convo.messages.length > 0) {
+                // Hide welcome message if there are messages
+                const welcomeMessage = document.getElementById('welcomeMessage');
+                if (welcomeMessage) {
+                    welcomeMessage.style.display = 'none';
+                }
+
+                // Load all messages
+                convo.messages.forEach(m => {
+                    const messageDiv = createMessageDiv(m);
+                    chatBody.appendChild(messageDiv);
+                });
+            } else {
+                // Show welcome message for empty conversations
+                chatBody.innerHTML = `
+                <div class="text-center text-muted my-5" id="welcomeMessage">
+                    <i class="fas fa-balance-scale fa-3x mb-3 text-primary"></i>
+                    <h4>Welcome to NyayAI</h4>
+                    <p class="mb-0">Your AI-powered legal assistant. Ask me about Indian laws, rights, or legal procedures.</p>
+                </div>
+            `;
+            }
+
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function loadConversationHistory() {
+            const saved = localStorage.getItem('nyayai-chat-history');
+            if (saved) {
+                try {
+                    conversationHistory = JSON.parse(saved);
+                    if (conversationHistory.length > 0) {
+                        currentChatIndex = conversationHistory.length - 1;
+                        loadConversation(currentChatIndex);
+                    }
+                    updateHistorySidebar();
+                } catch (e) {
+                    console.error('Error loading conversation history:', e);
+                    conversationHistory = [];
+                }
+            }
+        }
+
+        function getCSRFToken() {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                document.cookie.split(';').forEach(cookie => {
+                    const trimmed = cookie.trim();
+                    if (trimmed.startsWith('csrftoken=')) {
+                        cookieValue = decodeURIComponent(trimmed.substring(10));
+                    }
+                });
+            }
+            return cookieValue;
+        }
+
+        // Enhanced Legal Assistant Functions
+        function startCaseAssessment() {
+            const assessmentFlow = [
+                "What type of legal issue are you facing? (Civil/Criminal/Consumer/Property/Employment)",
+                "When did this incident occur?",
+                "Have you collected any evidence? (Documents/Photos/Recordings/Witnesses)",
+                "What is the approximate financial value involved?",
+                "Have you sent any legal notice previously?",
+                "What outcome are you seeking?"
+            ];
+
+            let currentStep = 0;
+
+            function askNextQuestion() {
+                if (currentStep < assessmentFlow.length) {
+                    addMessageToChat('ai', assessmentFlow[currentStep]);
+                    currentStep++;
+                } else {
+                    addMessageToChat('ai', "Based on your responses, I'll now provide you with:\n1. Required documents checklist\n2. Applicable laws and sections\n3. Step-by-step procedure\n4. Estimated timeline\n5. Cost implications\n\nPlease answer the questions above to proceed.");
+                }
+            }
+
+            addMessageToChat('ai', "🏛️ Welcome to NyayAI Case Assessment. I'll help you understand your legal position and next steps.\n\n" + assessmentFlow[0]);
+            currentStep = 1;
+
+            // Override send message temporarily to handle assessment flow
+            const originalSendMessage = window.sendMessage;
+            window.sendMessage = function () {
+                const input = document.getElementById('user-input');
+                const message = input.value.trim();
+
+                if (!message) return;
+
+                addMessageToChat('user', message);
+                input.value = '';
+
+                // Continue assessment flow
+                setTimeout(askNextQuestion, 1000);
+
+                // Restore original function after assessment
+                if (currentStep >= assessmentFlow.length) {
+                    window.sendMessage = originalSendMessage;
+                }
+            };
+        }
+
+        function showDocumentChecklist() {
+            const checklistHTML = `
+            <div class="alert alert-info">
+                <h6>📋 General Document Checklist</h6>
+                <ul class="mb-2">
+                    <li>Identity Proof (Aadhar/PAN/Driving License)</li>
+                    <li>Address Proof</li>
+                    <li>Incident Details with Timeline</li>
+                    <li>Supporting Evidence</li>
+                    <li>Witness Information</li>
+                    <li>Financial Documents (if applicable)</li>
+                </ul>
+                <small>Ask me for specific case type checklists!</small>
+            </div>
+        `;
+            addMessageToChat('ai', checklistHTML);
+        }
+
+        function courtJurisdictionHelper() {
+            const jurisdictionGuide = `
+            <div class="legal-citation">
+                <h6>🏛️ Court Jurisdiction Guide</h6>
+                <p><strong>Money Value Based:</strong></p>
+                <ul>
+                    <li>₹0 - ₹3 Lakhs: Junior Civil Judge</li>
+                    <li>₹3 Lakhs - ₹15 Lakhs: Senior Civil Judge</li>
+                    <li>₹15 Lakhs - ₹2 Crores: District Court</li>
+                    <li>Above ₹2 Crores: High Court</li>
+                </ul>
+                
+                <p><strong>Territorial Jurisdiction:</strong></p>
+                <ul>
+                    <li>Where the incident occurred</li>
+                    <li>Where the defendant resides/works</li>
+                    <li>Where the property is situated</li>
+                    <li>Where the contract was executed</li>
+                </ul>
+                
+                <p><strong>Criminal Cases:</strong></p>
+                <ul>
+                    <li>Where the offence was committed</li>
+                    <li>Police station jurisdiction area</li>
+                </ul>
+            </div>
+        `;
+            addMessageToChat('ai', jurisdictionGuide);
+        }
+
+
+        // Document Upload Functionality - GPT Style
+        function initializeDocumentUpload() {
+            const attachFileBtn = document.getElementById('attachFileBtn');
+            const documentUploadArea = document.getElementById('documentUploadArea');
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const activeUploads = document.getElementById('activeUploads');
+            const documentSummaries = document.getElementById('documentSummaries');
+
+            // Toggle document upload area
+            attachFileBtn.addEventListener('click', showDocumentUpload);
+
+            // Drag and drop functionality
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+
+            async function handleFileUpload(file) {
+                // Validate file type
+                const validTypes = ['application/pdf', 'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'text/plain'];
+
+                if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|txt)$/i)) {
+                    alert('Please upload PDF, DOC, DOCX, or TXT files only.');
+                    return;
+                }
+
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size should be less than 5MB.');
+                    return;
+                }
+
+                // Show upload in progress
+                const uploadId = 'upload-' + Date.now();
+                activeUploads.innerHTML = `
+        <div class="alert alert-info d-flex align-items-center" id="${uploadId}">
+            <i class="fas fa-file-upload me-2"></i>
+            <div class="flex-grow-1">
+                <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)
+                <div class="progress mt-1" style="height: 4px;">
+                    <div class="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+                // Show progress
+                uploadProgress.classList.remove('d-none');
+                simulateProgress();
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('csrfmiddlewaretoken', getCSRFToken());
+
+                try {
+                    const response = await fetch('/api/upload-document/', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    uploadProgress.classList.add('d-none');
+                    document.getElementById(uploadId)?.remove();
+
+                    if (data.success) {
+                        addDocumentSummary(data.filename, data.summary, data.document_type);
+                        // Auto-send a message about the document
+                        setTimeout(() => {
+                            document.getElementById('user-input').value = `I just uploaded ${data.filename}. Please analyze this legal document.`;
+                            sendMessage();
+                            hideDocumentUpload();
+                        }, 1000);
+                    } else {
+                        alert('Upload failed: ' + data.error);
+                    }
+                } catch (error) {
+                    uploadProgress.classList.add('d-none');
+                    document.getElementById(uploadId)?.remove();
+                    alert('Network error uploading file. Please try again.');
+                    console.error('Upload error:', error);
+                }
+            }
+
+            function simulateProgress() {
+                let progress = 0;
+                progressBar.style.width = '0%';
+                progressText.textContent = '0%';
+
+                const interval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    if (progress >= 90) {
+                        progress = 90;
+                        clearInterval(interval);
+                    }
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+                }, 200);
+            }
+
+            function addDocumentSummary(filename, summary, docType) {
+                const documentSummaries = document.getElementById('documentSummaries');
+                documentSummaries.classList.remove('d-none');
+
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'document-summary alert alert-light border';
+                summaryDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6 class="mb-1">
+                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                            ${filename}
+                        </h6>
+                        <span class="badge bg-info">${docType}</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger delete-doc" title="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="summary-content">
+                    <strong>Analysis:</strong>
+                    <p class="mb-0 small mt-1">${summary}</p>
+                </div>
+            `;
+
+                // Add delete functionality
+                summaryDiv.querySelector('.delete-doc').addEventListener('click', function () {
+                    summaryDiv.remove();
+                    if (documentSummaries.children.length === 0) {
+                        documentSummaries.classList.add('d-none');
+                    }
+                });
+
+                documentSummaries.appendChild(summaryDiv);
+            }
+        }
+
+        function showDocumentUpload() {
+            document.getElementById('documentUploadArea').classList.remove('d-none');
+            document.getElementById('user-input').placeholder = "Type a message or upload a document...";
+        }
+
+        function hideDocumentUpload() {
+            document.getElementById('documentUploadArea').classList.add('d-none');
+            document.getElementById('user-input').placeholder = "Ask about Indian laws, rights, or legal procedures...";
+            document.getElementById('activeUploads').innerHTML = '';
+            document.getElementById('uploadProgress').classList.add('d-none');
+        }
+
+        // Save history when leaving page
+        window.addEventListener('beforeunload', function () {
+            localStorage.setItem('nyayai-chat-history', JSON.stringify(conversationHistory));
+        });
     });
-});
 </script>
+
 {% endblock %}
